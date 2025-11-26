@@ -528,21 +528,29 @@ class EmailNotifier:
                         </tr>
         """
         
-        # Add type folder rows
-        for folder, count in sorted(stats.type_folders_scanned.items()):
-            status_class = "success" if count > 0 else "warning"
+        # Calculate downloaded files per type folder (converted files)
+        downloaded_per_folder = {}
+        for download in stats.files_downloaded:
+            if download.success:
+                folder = download.type_folder
+                downloaded_per_folder[folder] = downloaded_per_folder.get(folder, 0) + 1
+        
+        # Add type folder rows showing converted/downloaded files
+        for folder in sorted(stats.type_folders_scanned.keys()):
+            converted_count = downloaded_per_folder.get(folder, 0)
+            status_class = "success" if converted_count > 0 else "warning"
             html += f"""
                         <tr>
                             <td>{folder}</td>
-                            <td class="{status_class}">{count}</td>
+                            <td class="{status_class}">{converted_count}</td>
                         </tr>
             """
         
-        total_scanned = sum(stats.type_folders_scanned.values())
+        total_converted = sum(downloaded_per_folder.values())
         html += f"""
                         <tr style="font-weight: bold; background-color: #f0f0f0;">
                             <td>Total</td>
-                            <td>{total_scanned}</td>
+                            <td>{total_converted}</td>
                         </tr>
                     </table>
                 </div>
