@@ -69,11 +69,19 @@ class DocumentParser:
         """Initialize regex patterns for extracting medical fields based on map.csv mapping."""
         return {
             'first_name': [
+                # Pattern for "PATIENT: LAST, FIRST" format - extract FIRST name
+                r'PATIENT:\s*[A-Z][A-Z\s-]+?,\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
+                r'Patient:\s*[A-Z][A-Za-z\s-]+?,\s*([A-Z][A-Za-z\s-]+?)(?:\n|$)',
+                # Standard patterns
                 r'FIRST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'FIRST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'first\s+name[:\s]+([^\n\r,]+)'
             ],
             'last_name': [
+                # Pattern for "PATIENT: LAST, FIRST" format - extract LAST name
+                r'PATIENT:\s*([A-Z][A-Z\s-]+?),\s*[A-Z][A-Z\s-]+?(?:\n|$)',
+                r'Patient:\s*([A-Z][A-Za-z\s-]+?),\s*[A-Z][A-Za-z\s-]+?(?:\n|$)',
+                # Standard patterns
                 r'LAST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'LAST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'last\s+name[:\s]+([^\n\r,]+)'
@@ -112,6 +120,9 @@ class DocumentParser:
                 r'Injury\s+Date:\s*(\d{1,2}/\d{1,2}/\d{4})'
             ],
             'provider_first': [
+                # Pattern for "Provider: Last, First" format - extract FIRST name
+                r'Provider:\s*[A-Z][A-Za-z\s.\-]+?,\s*([A-Z][A-Za-z\s.\-]+?)(?:\n|$)',
+                r'PROVIDER:\s*[A-Z][A-Z\s.\-]+?,\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
                 # Match PROVIDER FIRST/FRIST with periods and spaces in names (e.g., "MARK A.")
                 r'PROVIDER\s+FIRST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
                 r'PROVIDER\s+FRIST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',  # Note: "FRIST" as per mapping
@@ -122,6 +133,10 @@ class DocumentParser:
                 r'Provider\s+Frist:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
             ],
             'provider_last': [
+                # Pattern for "Provider: Last, First" format - extract LAST name
+                r'Provider:\s*([A-Z][A-Za-z\s.\-]+?),\s*[A-Z][A-Za-z\s.\-]+?(?:\n|$)',
+                r'PROVIDER:\s*([A-Z][A-Z\s.\-]+?),\s*[A-Z][A-Z\s.\-]+?(?:\n|$)',
+                # Standard patterns
                 r'PROVIDER\s+LAST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
                 r'PROVIDER\s+LAST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
                 r'Provider\s+Last:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
