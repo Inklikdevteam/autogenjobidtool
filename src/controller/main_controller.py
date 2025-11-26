@@ -502,7 +502,8 @@ class MainController:
         Returns:
             List[ActionResult]: Results of parallel actions
         """
-        actions = [
+        # First, execute upload and log creation in parallel
+        initial_actions = [
             {
                 'name': 'upload_csv',
                 'function': lambda: self.parallel_executor.upload_csv_action(
@@ -514,16 +515,27 @@ class MainController:
                 'function': lambda: self.parallel_executor.create_log_action(
                     date_folder, stats, self.processing_log_creator
                 )
-            },
-            {
-                'name': 'send_email',
-                'function': lambda: self.parallel_executor.send_email_action(
-                    stats, self.email_notifier
-                )
             }
         ]
         
-        results = self.parallel_executor.execute_parallel(actions)
+        initial_results = self.parallel_executor.execute_parallel(initial_actions)
+        
+        # Update stats with upload status and log filename before sending email
+        stats.upload_status = self._get_upload_status(initial_results)
+        stats.log_filename = self._get_log_filename(initial_results, date_folder)
+        
+        # Now send email with updated stats
+        email_action = {
+            'name': 'send_email',
+            'function': lambda: self.parallel_executor.send_email_action(
+                stats, self.email_notifier
+            )
+        }
+        
+        email_result = self.parallel_executor.execute_parallel([email_action])
+        
+        # Combine all results
+        results = initial_results + email_result
         
         # Log summary
         summary = self.parallel_executor.get_execution_summary(results)
