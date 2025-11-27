@@ -72,18 +72,20 @@ class DocumentParser:
                 # Pattern for "PATIENT: LAST, FIRST" format - extract FIRST name
                 r'PATIENT:\s*[A-Z][A-Z\s-]+?,\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'Patient:\s*[A-Z][A-Za-z\s-]+?,\s*([A-Z][A-Za-z\s-]+?)(?:\n|$)',
-                # Standard patterns
-                r'FIRST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
-                r'FIRST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
+                # Standard patterns with flexible spacing
+                r'FIRST\s+NAME:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'FIRST\s+NAME\s*:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'First\s+Name:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
                 r'first\s+name[:\s]+([^\n\r,]+)'
             ],
             'last_name': [
                 # Pattern for "PATIENT: LAST, FIRST" format - extract LAST name
                 r'PATIENT:\s*([A-Z][A-Z\s-]+?),\s*[A-Z][A-Z\s-]+?(?:\n|$)',
                 r'Patient:\s*([A-Z][A-Za-z\s-]+?),\s*[A-Z][A-Za-z\s-]+?(?:\n|$)',
-                # Standard patterns
-                r'LAST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
-                r'LAST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
+                # Standard patterns with flexible spacing
+                r'LAST\s+NAME:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'LAST\s+NAME\s*:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'Last\s+Name:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
                 r'last\s+name[:\s]+([^\n\r,]+)'
             ],
             'date_of_birth': [
@@ -123,23 +125,23 @@ class DocumentParser:
                 # Pattern for "Provider: Last, First" format - extract FIRST name
                 r'Provider:\s*[A-Z][A-Za-z\s.\-]+?,\s*([A-Z][A-Za-z\s.\-]+?)(?:\n|$)',
                 r'PROVIDER:\s*[A-Z][A-Z\s.\-]+?,\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                # Match PROVIDER FIRST/FRIST with periods and spaces in names (e.g., "MARK A.")
-                r'PROVIDER\s+FIRST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                r'PROVIDER\s+FRIST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',  # Note: "FRIST" as per mapping
-                r'PROVIDER\s+FIRST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                r'PROVIDER\s+FRIST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                # Match PROVIDER FIRST/FRIST with flexible spacing
+                r'PROVIDER\s+FIRST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                r'PROVIDER\s+FRIST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',  # Note: "FRIST" as per mapping
+                r'PROVIDER\s+FIRST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                r'PROVIDER\s+FRIST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
                 # Case insensitive patterns
-                r'Provider\s+First:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                r'Provider\s+Frist:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
+                r'Provider\s+First:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                r'Provider\s+Frist:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)'
             ],
             'provider_last': [
                 # Pattern for "Provider: Last, First" format - extract LAST name
                 r'Provider:\s*([A-Z][A-Za-z\s.\-]+?),\s*[A-Z][A-Za-z\s.\-]+?(?:\n|$)',
                 r'PROVIDER:\s*([A-Z][A-Z\s.\-]+?),\s*[A-Z][A-Z\s.\-]+?(?:\n|$)',
-                # Standard patterns
-                r'PROVIDER\s+LAST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                r'PROVIDER\s+LAST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                r'Provider\s+Last:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
+                # Standard patterns with flexible spacing
+                r'PROVIDER\s+LAST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                r'PROVIDER\s+LAST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                r'Provider\s+Last:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)'
             ],
             'exam_date': [
                 r'Date\s+of\s+Exam:\s*(\d{1,2}/\d{1,2}/\d{4})',
