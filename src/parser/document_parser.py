@@ -742,6 +742,9 @@ class DocumentParser:
             'no dictation',
             'no dictation.',
             'nodictation',
+            'blank file',
+            'this is a blank file',
+            'note: this is a blank file',
         ]
         
         # Check if document contains blank indicators
