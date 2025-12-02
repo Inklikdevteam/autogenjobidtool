@@ -737,7 +737,7 @@ class DocumentParser:
         text_stripped = text.strip()
         text_lower = text_stripped.lower()
         
-        # Patterns that indicate a blank/empty document
+        # Patterns that indicate a blank/empty document or addendum/reference document
         blank_indicators = [
             'no dictation',
             'no dictation.',
@@ -745,6 +745,10 @@ class DocumentParser:
             'blank file',
             'this is a blank file',
             'note: this is a blank file',
+            'dictation cancelled',
+            'dictation cancelled.',
+            'this is an addendum to file',
+            'addendum to file',
         ]
         
         # Check if document contains blank indicators
@@ -755,9 +759,9 @@ class DocumentParser:
         if len(text_stripped) < 50:
             is_blank_document = True
         
-        # If document is blank, return only source_file
+        # If document is blank or addendum, return only source_file
         if is_blank_document:
-            logger.info(f"Detected blank/no-dictation document: {source_file}")
+            logger.info(f"Detected blank/cancelled/addendum document: {source_file}")
             return MedicalRecord(source_file=source_file)
         
         # Extract fields from text
