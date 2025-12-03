@@ -69,23 +69,13 @@ class DocumentParser:
         """Initialize regex patterns for extracting medical fields based on map.csv mapping."""
         return {
             'first_name': [
-                # Pattern for "PATIENT: LAST, FIRST" format - extract FIRST name
-                r'PATIENT:\s*[A-Z][A-Z\s-]+?,\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
-                r'Patient:\s*[A-Z][A-Za-z\s-]+?,\s*([A-Z][A-Za-z\s-]+?)(?:\n|$)',
-                # Standard patterns with flexible spacing
-                r'FIRST\s+NAME:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
-                r'FIRST\s+NAME\s*:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
-                r'First\s+Name:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'FIRST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
+                r'FIRST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'first\s+name[:\s]+([^\n\r,]+)'
             ],
             'last_name': [
-                # Pattern for "PATIENT: LAST, FIRST" format - extract LAST name
-                r'PATIENT:\s*([A-Z][A-Z\s-]+?),\s*[A-Z][A-Z\s-]+?(?:\n|$)',
-                r'Patient:\s*([A-Z][A-Za-z\s-]+?),\s*[A-Z][A-Za-z\s-]+?(?:\n|$)',
-                # Standard patterns with flexible spacing
-                r'LAST\s+NAME:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
-                r'LAST\s+NAME\s*:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
-                r'Last\s+Name:\s*([A-Z][A-Za-z\s-]+?)(?:\s*\n|\s*$)',
+                r'LAST\s+NAME:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
+                r'LAST\s+NAME\s*:\s*([A-Z][A-Z\s-]+?)(?:\n|$)',
                 r'last\s+name[:\s]+([^\n\r,]+)'
             ],
             'date_of_birth': [
@@ -122,26 +112,19 @@ class DocumentParser:
                 r'Injury\s+Date:\s*(\d{1,2}/\d{1,2}/\d{4})'
             ],
             'provider_first': [
-                # Pattern for "Provider: Last, First" format - extract FIRST name
-                r'Provider:\s*[A-Z][A-Za-z\s.\-]+?,\s*([A-Z][A-Za-z\s.\-]+?)(?:\n|$)',
-                r'PROVIDER:\s*[A-Z][A-Z\s.\-]+?,\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
-                # Match PROVIDER FIRST/FRIST with flexible spacing
-                r'PROVIDER\s+FIRST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
-                r'PROVIDER\s+FRIST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',  # Note: "FRIST" as per mapping
-                r'PROVIDER\s+FIRST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
-                r'PROVIDER\s+FRIST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
+                # Match PROVIDER FIRST/FRIST with periods and spaces in names (e.g., "MARK A.")
+                r'PROVIDER\s+FIRST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                r'PROVIDER\s+FRIST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',  # Note: "FRIST" as per mapping
+                r'PROVIDER\s+FIRST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                r'PROVIDER\s+FRIST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
                 # Case insensitive patterns
-                r'Provider\s+First:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
-                r'Provider\s+Frist:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)'
+                r'Provider\s+First:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                r'Provider\s+Frist:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
             ],
             'provider_last': [
-                # Pattern for "Provider: Last, First" format - extract LAST name
-                r'Provider:\s*([A-Z][A-Za-z\s.\-]+?),\s*[A-Z][A-Za-z\s.\-]+?(?:\n|$)',
-                r'PROVIDER:\s*([A-Z][A-Z\s.\-]+?),\s*[A-Z][A-Z\s.\-]+?(?:\n|$)',
-                # Standard patterns with flexible spacing
-                r'PROVIDER\s+LAST:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
-                r'PROVIDER\s+LAST\s*:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)',
-                r'Provider\s+Last:\s*([A-Z][A-Za-z\s.\-]+?)(?:\s*\n|\s*$)'
+                r'PROVIDER\s+LAST:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                r'PROVIDER\s+LAST\s*:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)',
+                r'Provider\s+Last:\s*([A-Z][A-Z\s.\-]+?)(?:\n|$)'
             ],
             'exam_date': [
                 r'Date\s+of\s+Exam:\s*(\d{1,2}/\d{1,2}/\d{4})',
@@ -731,6 +714,14 @@ class DocumentParser:
         if not text:
             logger.warning(f"No text provided for parsing from {source_file}")
             return MedicalRecord(source_file=source_file)
+
+        # Check if filename contains "MERGED" - these files have paragraph format
+        # and should only show source_file in CSV with all other fields blank
+        if 'MERGED' in source_file.upper():
+            logger.info(f"Detected MERGED document (paragraph format): {source_file}")
+            return MedicalRecord(source_file=source_file)
+
+
         
         # Check if document is essentially blank or has "No dictation"
         # Remove whitespace and check content length
@@ -742,15 +733,19 @@ class DocumentParser:
             'no dictation',
             'no dictation.',
             'nodictation',
+            'there is no dictation',
             'blank file',
+            'blank',
             'this is a blank file',
             'note: this is a blank file',
             'dictation cancelled',
             'dictation cancelled.',
             'this is an addendum to file',
             'addendum to file',
+            'addendum added to file',
+            're-dictated in file',
+            'redictated in file',
         ]
-        
         # Check if document contains blank indicators
         is_blank_document = any(indicator in text_lower for indicator in blank_indicators)
         
@@ -761,9 +756,7 @@ class DocumentParser:
         
         # If document is blank or addendum, return only source_file
         if is_blank_document:
-            logger.info(f"Detected blank/cancelled/addendum document: {source_file}")
-            return MedicalRecord(source_file=source_file)
-        
+           logger.info(f"Detected blank/cancelled/addendum document: {source_file}")
         # Extract fields from text
         record = MedicalRecord(
             source_file=source_file,
