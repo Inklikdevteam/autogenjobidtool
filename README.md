@@ -1,6 +1,6 @@
 # WebScribe FTPS Workflow
 
-An automated Python application that connects to WebScribe FTPS server, processes files from multiple type folders, and uploads results to WOLF SFTP server with comprehensive email notifications and error handling.
+An automated Python application that connects to WebScribe FTPS server, processes files from multiple type folders, and uploads results to WOLF SFTP server with comprehensive email notifications and error handling..
 
 ## Table of Contents
 
