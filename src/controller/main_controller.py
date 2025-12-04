@@ -409,13 +409,13 @@ class MainController:
                             # Extract text
                             text = self.document_parser.extract_text_from_document(str(doc_file))
                             
-                            if text:
-                                # Parse medical fields
-                                record = self.document_parser.parse_medical_fields(text, doc_file.name)
-                                medical_records.append(record)
-                                logger.debug(f"✓ Processed: {doc_file.name}")
-                            else:
-                                logger.warning(f"✗ No text extracted from: {doc_file.name}")
+                            # Parse medical fields (even if text is empty, to include all files in CSV)
+                            record = self.document_parser.parse_medical_fields(text, doc_file.name)
+                            medical_records.append(record)
+                            logger.debug(f"✓ Processed: {doc_file.name}")
+                            
+                            if not text:
+                                logger.warning(f"⚠ No text extracted from: {doc_file.name} (included in CSV with available fields)")
                                 
                         except Exception as e:
                             logger.warning(f"✗ Failed to process {doc_file.name}: {e}")
