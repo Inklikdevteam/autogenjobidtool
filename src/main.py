@@ -4,6 +4,8 @@ import sys
 import signal
 import logging
 import os
+import argparse
+from datetime import datetime
 from pathlib import Path
 from config.settings import ConfigManager, ConfigurationError
 from controller.main_controller import MainController, ProcessingError
@@ -16,6 +18,55 @@ from utils.logging_config import setup_logging as setup_advanced_logging
 scheduler = None
 main_controller = None
 logger = None
+custom_processing_date = None
+
+
+def parse_arguments():
+    """Parse command-line arguments.
+    
+    Returns:
+        argparse.Namespace: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description='WebScribe FTPS Workflow System - Medical Document Processing',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python src/main.py                    # Run with default settings (yesterday's date)
+  python src/main.py --date 2025-12-01  # Process files for specific date
+  python src/main.py --date today       # Process files for today's date
+        """
+    )
+    
+    parser.add_argument(
+        '--date',
+        type=str,
+        help='Specify processing date in YYYY-MM-DD format, or use "today" for current date. Default: yesterday',
+        metavar='DATE'
+    )
+    
+    return parser.parse_args()
+
+
+def parse_date_argument(date_str: str) -> datetime:
+    """Parse the date argument into a datetime object.
+    
+    Args:
+        date_str: Date string in YYYY-MM-DD format or "today"
+        
+    Returns:
+        datetime: Parsed date
+        
+    Raises:
+        ValueError: If date format is invalid
+    """
+    if date_str.lower() == 'today':
+        return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    try:
+        return datetime.strptime(date_str, '%Y-%m-%d')
+    except ValueError:
+        raise ValueError(f"Invalid date format: '{date_str}'. Use YYYY-MM-DD format or 'today'")
 
 
 def setup_logging(config_manager: ConfigManager):
@@ -153,9 +204,21 @@ def run_scheduled_processing():
 
 def main():
     """Main application entry point."""
-    global scheduler, main_controller, logger
+    global scheduler, main_controller, logger, custom_processing_date
     
     try:
+        # Parse command-line arguments
+        args = parse_arguments()
+        
+        # Parse custom date if provided
+        if args.date:
+            try:
+                custom_processing_date = parse_date_argument(args.date)
+                print(f"Custom processing date specified: {custom_processing_date.strftime('%Y-%m-%d')}")
+            except ValueError as e:
+                print(f"Error: {e}")
+                sys.exit(1)
+        
         # Validate environment first
         logger = logging.getLogger(__name__)  # Initialize basic logger first
         logger.info("Starting system validation...")
@@ -178,9 +241,13 @@ def main():
         create_directories(config_manager)
         logger.info("Directory structure validated")
         
-        # Initialize main controller
-        main_controller = MainController(config_manager)
+        # Initialize main controller with custom date if provided
+        main_controller = MainController(config_manager, custom_date=custom_processing_date)
         logger.info("Main controller initialized successfully")
+        
+        # Log custom date if specified
+        if custom_processing_date:
+            logger.info(f"Using custom processing date: {custom_processing_date.strftime('%Y-%m-%d')}")
         
         # Get schedule configuration
         schedule_config = config_manager.get_schedule_config()

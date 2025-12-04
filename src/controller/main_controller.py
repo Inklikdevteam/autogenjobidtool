@@ -38,13 +38,15 @@ class ProcessingError(Exception):
 class MainController:
     """Main controller that orchestrates the WebScribe FTPS workflow."""
     
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(self, config_manager: ConfigManager, custom_date: Optional[datetime] = None):
         """Initialize the main controller with all required components.
         
         Args:
             config_manager: Configuration manager instance
+            custom_date: Optional custom date for processing (overrides config)
         """
         self.config_manager = config_manager
+        self.custom_date = custom_date
         
         # Get configurations
         self.source_ftps_config = config_manager.get_source_ftps_config()
@@ -216,7 +218,13 @@ class MainController:
             Path: Path to created date folder
         """
         try:
-            date_folder = self.date_folder_manager.create_date_folder()
+            # Use custom date if provided, otherwise use default behavior
+            if self.custom_date:
+                date_folder = self.date_folder_manager.create_date_folder(date=self.custom_date)
+                logger.info(f"Using custom date: {self.custom_date.strftime('%Y-%m-%d')}")
+            else:
+                date_folder = self.date_folder_manager.create_date_folder()
+            
             logger.debug(f"Date folder created: {date_folder}")
             return date_folder
             

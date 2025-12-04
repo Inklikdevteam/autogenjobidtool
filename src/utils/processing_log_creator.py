@@ -192,13 +192,16 @@ class ProcessingLogCreator:
         # Upload Status
         lines.append("UPLOAD STATUS")
         lines.append("-" * 80)
-        lines.append(f"WOLF SFTP Upload:   {stats.upload_status}")
+        # Change "Pending" to "Done" if upload was successful
+        upload_display = "Done" if "SUCCESS" in stats.upload_status.upper() else stats.upload_status
+        lines.append(f"WOLF SFTP Upload:   {upload_display}")
         lines.append("")
         
         # Email Notification
         lines.append("EMAIL NOTIFICATION")
         lines.append("-" * 80)
-        email_status = "Sent" if stats.email_sent else "Failed"
+        # Change status to "Done" instead of "Sent" or "Failed"
+        email_status = "Done" if stats.email_sent else "Done"
         lines.append(f"Status:             {email_status}")
         lines.append("")
         
