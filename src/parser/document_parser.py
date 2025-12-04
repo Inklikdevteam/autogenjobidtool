@@ -754,9 +754,9 @@ class DocumentParser:
         if len(text_stripped) < 50:
             is_blank_document = True
         
-        # If document is blank or addendum, return only source_file
+        # Log if document is blank or addendum (but still process it to include in CSV)
         if is_blank_document:
-           logger.info(f"Detected blank/cancelled/addendum document: {source_file}")
+           logger.info(f"Detected blank/cancelled/addendum document (will still include in CSV): {source_file}")
         # Extract fields from text
         record = MedicalRecord(
             source_file=source_file,
