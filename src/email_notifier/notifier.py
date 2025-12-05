@@ -416,7 +416,7 @@ class EmailNotifier:
             bool: True if email was sent successfully, False otherwise
         """
         try:
-            subject = f"WebScribe Processing Complete - {stats.date_folder}"
+            subject = f"Dictation Job ID Processing Complete - {stats.date_folder}"
             
             # Build HTML email body
             html_body = self._build_webscribe_html_body(stats)
@@ -493,7 +493,7 @@ class EmailNotifier:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>WebScribe Processing Complete</h1>
+                    <h1>Dictation Job ID Processing Complete</h1>
                     <p>Date Folder: {stats.date_folder}</p>
                 </div>
                 
